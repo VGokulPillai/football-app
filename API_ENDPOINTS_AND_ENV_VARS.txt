@@ -1,0 +1,34 @@
+Manchester United Football Intelligence — client handoff (no secrets in repo)
+================================================================================
+
+Shareable zip: from the mufc/ directory run ./scripts/zip-for-share.sh — writes ../mufc.zip with
+no node_modules/.databricks/dist, no .env files, placeholder workspace in databricks.yml,
+and API_FOOTBALL_KEY forced empty (your local files are not modified).
+
+External API base URLs (unchanged in source; keys are never committed)
+-----------------------------------------------------------------------
+- API-Football (API-Sports): https://v3.football.api-sports.io
+- API-Football media CDN:    https://media.api-sports.io/football/...
+- Open-Meteo (no API key):   https://api.open-meteo.com/v1/forecast
+- Football-Data.org:         https://api.football-data.org/v4/ (optional; X-Auth-Token)
+- NewsAPI:                   https://newsapi.org/v2/ (optional; apiKey query param)
+
+Environment variables / secrets to configure on your side
+-----------------------------------------------------------
+- API_FOOTBALL_KEY          Required for live football data (header: x-apisports-key)
+- FOOTBALL_DATA_API_KEY     Optional (notebooks / ingest script)
+- NEWS_API_KEY              Optional (ingest script)
+- OPENAI_API_KEY            Optional GPT fallback (or use Databricks external model)
+- GPT_FALLBACK_ENDPOINT     Optional Databricks serving endpoint name
+- SERVING_ENDPOINT          Claude / FM API endpoint name in Databricks
+- DATABRICKS_TOKEN          Local dev only (never commit)
+- DATABRICKS_WAREHOUSE_ID   Optional SQL warehouse for Delta queries
+- CATALOG / SCHEMA          Unity Catalog defaults (see app.yaml)
+
+Databricks bundle (databricks.yml)
+----------------------------------
+Replace placeholder host https://YOUR_WORKSPACE.cloud.databricks.com and set
+CLI profile to your workspace (default shown as DEFAULT in client packages).
+
+If you received a previously shared build with a committed API key, rotate that
+key in the API-Sports dashboard and revoke the old one.

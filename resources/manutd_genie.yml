@@ -1,0 +1,132 @@
+resources:
+  genie_spaces:
+    mufc_intelligence:
+      display_name: "FC Barcelona Football Intelligence"
+      description: >
+        AI-powered conversational analytics for FC Barcelona — match performance,
+        commercial revenue, weather impact, fan attendance, and operational health.
+        Ask questions in plain English and get instant answers from your data.
+      warehouse_id: "${var.warehouse_id}"
+
+      # ── Tables available to Genie ─────────────────────────────────────────
+      # All tables live in ${var.catalog}.${var.schema} (set in databricks.yml variables)
+      # Run notebook 05_genie_setup.py first to create the integrated gold views.
+      tables:
+        # ── Integrated / joined views (best for Genie — pre-joined, rich context) ──
+        - catalog: "${var.catalog}"
+          schema: "${var.schema}"
+          table: "gold_matchday_intelligence"
+          description: >
+            Master match-day view joining weather conditions, attendance impact,
+            and commercial KPIs. One row per calendar date.
+            Key fields: event_date, temperature_c, conditions, attendance_impact_pct,
+            revenue, orders, avg_order_value, crm_region.
+
+        - catalog: "${var.catalog}"
+          schema: "${var.schema}"
+          table: "gold_commercial_summary"
+          description: >
+            Daily commercial KPIs by region: revenue, order count, average order value.
+            Sourced from CRM + ERP pipeline. Use this for revenue trend questions.
+            Key fields: order_date, crm_region, revenue, orders, avg_order_value.
+
+        - catalog: "${var.catalog}"
+          schema: "${var.schema}"
+          table: "gold_operational_health_iot"
+          description: >
+            IoT device health joined with regional sales — device average readings
+            by day, aligned to commercial regions. Use for operations questions.
+            Key fields: device_id, event_date, avg_reading, reading_count, crm_region, revenue.
+
+        # ── Individual gold tables ────────────────────────────────────────────
+        - catalog: "${var.catalog}"
+          schema: "${var.schema}"
+          table: "gold_weather_attendance_impact"
+          description: >
+            Weather conditions at Estadi Olímpic and their modelled attendance impact. and their modelled attendance impact.
+            Conditions: clear, cloudy, drizzle, rain.
+            Key fields: ingested_at, temperature_c, conditions, attendance_impact_pct.
+
+        - catalog: "${var.catalog}"
+          schema: "${var.schema}"
+          table: "gold_daily_sales_kpi"
+          description: >
+            Daily aggregated sales KPIs: total revenue, order volume, average order value
+            broken down by CRM region (e.g., UK, Europe, Asia, Americas).
+            Key fields: order_date, crm_region, revenue, orders, avg_order_value.
+
+      # ── Genie Instructions ─────────────────────────────────────────────────
+      # These tell Genie how to interpret questions, join tables, and format answers.
+      instructions: |
+        ## FC Barcelona Football Intelligence — Genie Guide
+
+        You are an AI analyst for FC Barcelona. You help the commercial,
+        sporting, and operations teams make data-driven decisions quickly.
+
+        ### Available Data
+        - **Match Day Intelligence** (`gold_matchday_intelligence`): Weather + commercial KPIs joined per day
+        - **Commercial / Sales** (`gold_commercial_summary`, `gold_daily_sales_kpi`): Revenue, orders, regions
+        - **Weather & Attendance** (`gold_weather_attendance_impact`): How weather affects home attendance at Estadi Olímpic Lluís Companys
+        - **Operational IoT** (`gold_operational_health_iot`): Stadium and facility device readings
+
+        ### Key Business Terms
+        - **Attendance impact %**: Estimated change in attendance vs average due to weather (negative = fewer fans)
+        - **CRM region**: Geographic sales region — UK, Europe, Asia Pacific, Americas, Middle East
+        - **Revenue**: Matchday and commercial revenue in GBP (£)
+        - **Orders**: Number of commercial transactions (merchandise, hospitality, F&B)
+        - **avg_order_value**: Average spend per transaction in GBP
+        - **avg_reading**: Average IoT sensor reading (stadium environmental metric)
+        - **conditions**: Weather classification — clear | cloudy | drizzle | rain
+
+        ### How to Join Tables
+        - Join **weather** with **sales** on `event_date = order_date` (both are calendar dates)
+        - The `gold_matchday_intelligence` table already performs this join — use it for combined queries
+        - When comparing IoT health to commercial performance, use `gold_operational_health_iot`
+
+        ### Date Handling
+        - All dates are in UTC
+        - Use `order_date`, `event_date`, or `ingested_at` (ISO string) for time filtering
+        - "Last week" = 7 days before today; "This month" = calendar month to date
+
+        ### Formatting Rules
+        - Show revenue in £ (GBP) with 2 decimal places
+        - Show percentages with 1 decimal place
+        - Sort time-series results by date ascending unless asked otherwise
+        - If a question is about "performance" without specifying what, default to revenue + attendance impact
+
+        ### Scope
+        - Stick to data available in the tables above
+        - For prediction questions, note these are modelled estimates, not actuals
+        - If asked about specific player data, explain that player-level data is not in this Genie Space
+
+      # ── Curated Questions ──────────────────────────────────────────────────
+      # Shown to users on the Genie home screen — lower the barrier to first question
+      curated_questions:
+        # Commercial
+        - question: "What was total revenue last week by region?"
+        - question: "Which CRM region has the highest average order value this month?"
+        - question: "Show me the revenue trend over the last 30 days"
+        - question: "How many orders did we process yesterday?"
+        - question: "Compare this month's revenue to last month by region"
+
+        # Weather & Attendance
+        - question: "How does rain affect attendance at Estadi Olímpic?"
+        - question: "What is today's weather and what attendance impact do we expect?"
+        - question: "On which days this season did we have the worst weather conditions?"
+        - question: "Show attendance impact by weather condition type"
+
+        # Operations
+        - question: "Which IoT devices had the highest readings yesterday?"
+        - question: "Is there any correlation between device readings and revenue?"
+        - question: "Show operational health for the last 7 days"
+
+        # Combined / Executive
+        - question: "Give me a matchday intelligence summary for this week"
+        - question: "On rainy days, how does commercial revenue compare to clear days?"
+        - question: "What were the top 5 revenue days this season and what was the weather?"
+
+      permissions:
+        - level: CAN_VIEW
+          group_name: users
+        - level: CAN_EDIT
+          group_name: admins

@@ -1,0 +1,19 @@
+resources:
+  pipelines:
+    manutd_etl:
+      name: "[${bundle.target}] Man United Football Intelligence ETL"
+      catalog: hive_metastore
+      target: default
+      libraries:
+        - notebook:
+            path: ../pipelines/manutd_etl.py
+      configuration:
+        spark.databricks.manutd.catalog: hive_metastore
+        spark.databricks.manutd.schema: default
+      serverless: true
+      continuous: false
+      development: true
+      channel: current
+      permissions:
+        - level: CAN_VIEW
+          group_name: users

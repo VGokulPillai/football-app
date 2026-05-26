@@ -1,0 +1,6 @@
+resources:
+  apps:
+    fcb_app:
+      name: barcelona
+      description: "FC Barcelona Football Intelligence Platform - AI-powered control center for sporting and commercial decisions"
+      source_code_path: ..

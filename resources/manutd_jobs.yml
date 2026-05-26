@@ -1,0 +1,44 @@
+resources:
+  jobs:
+    manutd_ingest:
+      name: "[${bundle.target}] Man United API Ingestion"
+      tasks:
+        - task_key: ingest
+          notebook_task:
+            notebook_path: ../notebooks/00_ingest_apis.py
+      schedule:
+        quartz_cron_expression: "0 0 6 * * ?"
+        timezone_id: "Europe/London"
+      permissions:
+        - level: CAN_VIEW
+          group_name: users
+    manutd_ml_attendance:
+      name: "[${bundle.target}] Man United ML Attendance Model"
+      tasks:
+        - task_key: train
+          notebook_task:
+            notebook_path: ../notebooks/01_ml_attendance_model.py
+      permissions:
+        - level: CAN_VIEW
+          group_name: users
+    manutd_ml_injury:
+      name: "[${bundle.target}] Man United ML Injury Risk Model"
+      tasks:
+        - task_key: train
+          notebook_task:
+            notebook_path: ../notebooks/02_ml_injury_risk_model.py
+      permissions:
+        - level: CAN_VIEW
+          group_name: users
+    manutd_fixtures_ingest:
+      name: "[${bundle.target}] Man United Fixtures Refresh"
+      tasks:
+        - task_key: ingest
+          notebook_task:
+            notebook_path: ../notebooks/03_ingest_api_football.py
+      schedule:
+        quartz_cron_expression: "0 0 6 * * ?"
+        timezone_id: "Europe/London"
+      permissions:
+        - level: CAN_VIEW
+          group_name: users

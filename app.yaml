@@ -1,0 +1,23 @@
+command:
+  - "python"
+  - "-m"
+  - "uvicorn"
+  - "app:app"
+  - "--host"
+  - "0.0.0.0"
+  - "--port"
+  - "8000"
+
+env:
+  - name: SERVING_ENDPOINT
+    value: databricks-claude-sonnet-4-5
+  - name: CATALOG
+    value: fcb
+  - name: SCHEMA
+    value: default
+  # Set via Databricks App environment or secrets — https://www.api-football.com/ (API-Sports)
+  - name: API_FOOTBALL_KEY
+    value: "4b6e57e978ee6be8339795f394ae2c4a"
+  # Optional: GPT fallback - use Databricks external model (preferred) or direct OpenAI
+  # GPT_FALLBACK_ENDPOINT: name of Databricks external model endpoint (OpenAI via platform)
+  # OPENAI_API_KEY: direct OpenAI API key (when not using Databricks external model)

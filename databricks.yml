@@ -1,0 +1,54 @@
+bundle:
+  name: fcb
+
+include:
+  - resources/fcb.app.yml
+  - resources/manutd_jobs.yml
+  - resources/manutd_genie.yml
+  # DLT pipeline requires UC catalog — create catalog first, then uncomment:
+  # - resources/manutd_pipeline.yml
+
+sync:
+  exclude:
+    - "**/node_modules/**"
+    - "**/.venv/**"
+    - "**/__pycache__/**"
+    - "**/.git/**"
+    - "data/sample_videos/**"
+
+variables:
+  workspace_host:
+    default: "https://fevm-serverless-stable-0esuib.cloud.databricks.com"
+    description: "Databricks workspace URL"
+
+  warehouse_id:
+    default: ""
+    description: "SQL warehouse ID for the Genie Space — find it at SQL > Warehouses > copy the ID"
+
+  catalog:
+    default: "main"
+    description: "Unity Catalog catalog where Genie tables live (run 05_genie_setup.py to create them)"
+
+  schema:
+    default: "fcb"
+    description: "Unity Catalog schema for Genie tables"
+
+targets:
+  dev:
+    default: true
+    mode: development
+    workspace:
+      host: https://fevm-serverless-stable-0esuib.cloud.databricks.com
+      profile: fe-vm-serverless-stable
+    variables:
+      catalog: "main"
+      schema: "fcb_dev"
+
+  prod:
+    mode: production
+    workspace:
+      host: https://fevm-serverless-stable-0esuib.cloud.databricks.com
+      profile: fe-vm-serverless-stable
+    variables:
+      catalog: "main"
+      schema: "fcb"

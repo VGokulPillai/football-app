@@ -1,4 +1,4 @@
-# Manchester United Football Intelligence Platform
+# Football Intelligence Platform
 
 An executive-grade, AI-powered control center for Manchester United, built on **Databricks Apps** with a React frontend and Python/FastAPI backend. Features live weather (Open-Meteo), DLT pipelines, ML models, and animated dashboards. The platform unifies sporting performance intelligence and commercial decision-making in one unified application.
 
